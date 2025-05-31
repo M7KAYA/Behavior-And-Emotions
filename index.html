@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Behavior And Emotions</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #3498db 0%, #6dd5fa 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        width: 420px;
+        background: #ffffff;
+        padding: 30px 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      #question-text {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 25px;
+        color: #333;
+        padding: 14px 20px;
+        background-color: #e3f2fd;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        display: inline-block;
+        max-width: 100%;
+        line-height: 1.4;
+        user-select: none;
+      }
+      .btn-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+      }
+      button {
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: white;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+      }
+      button:hover {
+        background-color: #2980b9;
+        transform: scale(1.02);
+      }
+      button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+      .correct {
+        background-color: #2ecc71 !important;
+      }
+      .wrong {
+        background-color: #e74c3c !important;
+      }
+      .answer-btn:last-of-type {
+        margin-bottom: 10px;
+      }
+      #question-number {
+        margin-bottom: 15px;
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+      }
+      #result-box {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+        padding: 12px;
+        background-color: #dfefff;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 id="quiz-title">Behavior And Emotions</h2>
+
+      <div id="start-box">
+        <button id="start-btn">Start</button>
+      </div>
+      <div id="quiz-box" class="hide">
+        <div id="question-number"></div>
+        <div id="question-text"></div>
+        <div id="answer-buttons" class="btn-grid"></div>
+        <button id="next-btn" disabled>Next</button>
+      </div>
+      <div id="result-box" class="hide">
+        <h3>Your Score</h3>
+        <p id="score-text"></p>
+        <button id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+
+    <script>
+      const allQuestions = [
+        {
+          question:
+            "What is the primary focus of the lecture 'Behavior and Emotions'?",
+          options: [
+            "The history of emotional studies",
+            "The relationship between emotions and behavior",
+            "The influence of emotions on human behavior and their components",
+            "The neurological basis of emotions",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question: "How are emotions defined in the lecture?",
+          options: [
+            "Permanent personality traits",
+            "Temporary stirred-up states due to physiological and psychological changes",
+            "Logical responses to internal events only",
+            "Fixed reactions to social norms",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is NOT a component of emotions?",
+          options: [
+            "Subjective experience",
+            "Physiological response",
+            "Behavioral or expressive response",
+            "Genetic predisposition",
+          ],
+          correctIndex: 3,
+        },
+        {
+          question: "What role do emotions play in communication?",
+          options: [
+            "They are irrelevant to communication",
+            "They serve as a method of communication",
+            "They only hinder effective communication",
+            "They replace verbal communication entirely",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is a hazard of emotions?",
+          options: [
+            "Improved decision-making",
+            "Impaired judgment and fanaticism",
+            "Enhanced memory retention",
+            "Increased logical reasoning",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which component of emotions involves changes in heart rate and breathing?",
+          options: [
+            "Subjective experience",
+            "Physiological response",
+            "Behavioral response",
+            "Cognitive appraisal",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "How can emotions influence motivation?",
+          options: [
+            "They have no effect on motivation",
+            "They only decrease motivation",
+            "They are essential for motivation and enthusiasm",
+            "They replace the need for motivation",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question: "What is the effect of happiness on human behavior?",
+          options: [
+            "It decreases life expectancy",
+            "It increases marital satisfaction",
+            "It leads to social isolation",
+            "It reduces physical health",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which emotion is linked to the fight-or-flight response?",
+          options: ["Happiness", "Sadness", "Fear", "Surprise"],
+          correctIndex: 2,
+        },
+        {
+          question: "What is a common behavioral effect of sadness?",
+          options: [
+            "Increased social interaction",
+            "Avoiding people",
+            "Excessive laughter",
+            "Risk-taking behavior",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which of the following is a physiological response to anger?",
+          options: [
+            "Decreased heart rate",
+            "Increased susceptibility to hostility",
+            "Improved digestion",
+            "Reduced muscle tension",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is a possible consequence of prolonged sadness?",
+          options: [
+            "Improved immunity",
+            "Depression",
+            "Increased energy levels",
+            "Enhanced cognitive function",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which emotion is described as a 'sense of revulsion'?",
+          options: ["Fear", "Surprise", "Disgust", "Anger"],
+          correctIndex: 2,
+        },
+        {
+          question: "How does surprise typically affect behavior?",
+          options: [
+            "It leads to long-term planning",
+            "It causes a brief, startled reaction",
+            "It results in prolonged sadness",
+            "It eliminates all other emotions",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which emotion is associated with coronary heart disease?",
+          options: ["Happiness", "Surprise", "Anger", "Disgust"],
+          correctIndex: 2,
+        },
+        {
+          question: "What is a behavioral response to disgust?",
+          options: [
+            "Approaching the source of disgust",
+            "Turning away or vomiting",
+            "Increased verbal communication",
+            "Laughing uncontrollably",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is NOT a basic emotion?",
+          options: ["Happiness", "Fear", "Jealousy", "Surprise"],
+          correctIndex: 2,
+        },
+        {
+          question: "How do emotions help in dealing with the environment?",
+          options: [
+            "By eliminating all external stimuli",
+            "By guiding adaptive responses",
+            "By preventing any behavioral reactions",
+            "By making decisions purely logical",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is the effect of unhappiness on health?",
+          options: [
+            "It strengthens the immune system",
+            "It increases inflammation",
+            "It improves life expectancy",
+            "It reduces stress levels",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which of the following best describes the 'subjective experience' component of emotions?",
+          options: [
+            "Universal reactions shared by all people",
+            "Personal interpretation of an emotional event",
+            "Measurable physical changes",
+            "Social norms governing emotional expression",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is a key function of emotions in decision-making?",
+          options: [
+            "They eliminate the need for reasoning",
+            "They provide quick evaluations of situations",
+            "They ensure purely logical choices",
+            "They delay all behavioral responses",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which emotion is most likely to lead to impulsive actions?",
+          options: ["Happiness", "Surprise", "Anger", "Sadness"],
+          correctIndex: 2,
+        },
+        {
+          question: "How does fear physiologically prepare the body?",
+          options: [
+            "Slows digestion and reduces alertness",
+            "Increases heart rate and muscle tension",
+            "Suppresses adrenaline release",
+            "Encourages deep relaxation",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What behavioral change might result from chronic stress?",
+          options: [
+            "Lowered immunity and lethargy",
+            "Improved focus and energy",
+            "Increased social engagement",
+            "Reduced emotional variability",
+          ],
+          correctIndex: 0,
+        },
+        {
+          question: "Which statement about happiness is FALSE?",
+          options: [
+            "It correlates with longer life expectancy",
+            "It always leads to risk-taking behavior",
+            "It enhances mental health",
+            "It fosters social connections",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What distinguishes surprise from other emotions?",
+          options: [
+            "It lasts for extended periods",
+            "It is typically brief and triggered by unexpected events",
+            "It suppresses all physiological responses",
+            "It is never positive",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which emotion is linked to 'dwelling on negative thoughts'?",
+          options: ["Happiness", "Sadness", "Disgust", "Surprise"],
+          correctIndex: 1,
+        },
+        {
+          question: "What is a potential social effect of unchecked anger?",
+          options: [
+            "Strengthened relationships",
+            "Aggression or violence",
+            "Increased empathy",
+            "Enhanced teamwork",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which component of emotions involves facial expressions?",
+          options: [
+            "Subjective experience",
+            "Physiological response",
+            "Behavioral/expressive response",
+            "Cognitive appraisal",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question:
+            "How can understanding emotions improve behavior management?",
+          options: [
+            "By ignoring emotional triggers",
+            "By developing healthier coping strategies",
+            "By eliminating all negative emotions",
+            "By relying solely on logic",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is a shared feature of fear and surprise?",
+          options: [
+            "Both lead to prolonged sadness",
+            "Both trigger heightened alertness",
+            "Both suppress physiological arousal",
+            "Both are always negative",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which factor can trigger an emotional response?",
+          options: [
+            "Only external events",
+            "Thoughts, memories, or external events",
+            "Genetic factors alone",
+            "Social norms exclusively",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is a consequence of repressed emotions?",
+          options: [
+            "Improved judgment",
+            "Increased stress or mental health issues",
+            "Enhanced communication",
+            "Greater motivation",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which emotion is essential for survival?",
+          options: ["Disgust", "Fear", "Surprise", "Anger"],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "What does the lecture emphasize about thoughts and emotions?",
+          options: [
+            "They operate independently",
+            "Thoughts can trigger emotions, influencing behavior",
+            "Emotions always override thoughts",
+            "They are irrelevant to decision-making",
+          ],
+          correctIndex: 1,
+        },
+
+        // True/False
+        {
+          question: "Emotions are permanent psychological states.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Happiness has been linked to increased longevity.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question:
+            "Physiological responses to emotions include changes in heart rate.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Anger improves rational decision-making.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Disgust can trigger physical reactions like vomiting.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Sadness always leads to clinical depression.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Surprise is always a negative emotion.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Emotions play no role in motivation.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Fear prepares the body for 'fight-or-flight.'",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Behavioral responses to emotions are always voluntary.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Unhappiness is linked to lowered immunity.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Subjective experience varies between individuals.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Emotions hinder adaptation to the environment.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "All basic emotions have the same physiological effects.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Recognizing emotional patterns can improve coping mechanisms.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+      ];
+
+      let currentQuestionIndex = 0;
+      let score = 0;
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+      shuffleArray(allQuestions);
+
+      const startBtn = document.getElementById("start-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const tryAgainBtn = document.getElementById("try-again-btn");
+      const quizBox = document.getElementById("quiz-box");
+      const startBox = document.getElementById("start-box");
+      const questionNumberElement = document.getElementById("question-number");
+      const questionText = document.getElementById("question-text");
+      const answerButtons = document.getElementById("answer-buttons");
+      const resultBox = document.getElementById("result-box");
+      const scoreText = document.getElementById("score-text");
+
+      startBtn.addEventListener("click", startQuiz);
+      nextBtn.addEventListener("click", () => {
+        currentQuestionIndex++;
+        setNextQuestion();
+      });
+      tryAgainBtn.addEventListener("click", startQuiz);
+
+      function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        startBox.classList.add("hide");
+        resultBox.classList.add("hide");
+        quizBox.classList.remove("hide");
+        setNextQuestion();
+      }
+
+      function setNextQuestion() {
+        resetState();
+        if (currentQuestionIndex < allQuestions.length) {
+          showQuestion(allQuestions[currentQuestionIndex]);
+        } else {
+          showResult();
+        }
+      }
+
+      function showQuestion(questionObj) {
+        questionNumberElement.textContent = `Question ${
+          currentQuestionIndex + 1
+        } of ${allQuestions.length}`;
+        questionText.textContent = questionObj.question;
+
+        questionObj.options.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.classList.add("answer-btn");
+          button.addEventListener("click", () =>
+            selectAnswer(button, index === questionObj.correctIndex)
+          );
+          answerButtons.appendChild(button);
+        });
+      }
+
+      function resetState() {
+        nextBtn.disabled = true;
+        answerButtons.innerHTML = "";
+      }
+
+      function selectAnswer(button, isCorrect) {
+        const buttons = answerButtons.querySelectorAll("button");
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+        });
+
+        if (isCorrect) {
+          button.classList.add("correct");
+          score++;
+        } else {
+          button.classList.add("wrong");
+          const correctButton =
+            buttons[allQuestions[currentQuestionIndex].correctIndex];
+          correctButton.classList.add("correct");
+        }
+
+        nextBtn.disabled = false;
+      }
+
+      function showResult() {
+        quizBox.classList.add("hide");
+        resultBox.classList.remove("hide");
+        scoreText.textContent = `${score} out of ${allQuestions.length} correct`;
+      }
+    </script>
+  </body>
+</html>
